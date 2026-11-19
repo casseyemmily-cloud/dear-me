@@ -125,6 +125,74 @@ export function upsertCheckIn(entry) {
   return write(STORAGE_KEYS.checkins, items);
 }
 
+/** Ambil check-in untuk satu tanggal (ISO YYYY-MM-DD). */
+export function getCheckInByDate(tanggal) {
+  return read(STORAGE_KEYS.checkins).find((item) => item.tanggal === tanggal) ?? null;
+}
+
+/** Ambil entri check-in terakhir, dipakai saat belum ada check-in hari ini. */
+export function getLatestCheckIn() {
+  return read(STORAGE_KEYS.checkins)[0] ?? null;
+}
+
+/* ----- Jurnal (F-03) ----- */
+
+export function getJournals() {
+  return read(STORAGE_KEYS.journals);
+}
+
+export function addJournal(entry) {
+  const items = read(STORAGE_KEYS.journals);
+  items.unshift(entry);
+  return write(STORAGE_KEYS.journals, items);
+}
+
+export function removeJournal(id) {
+  const items = read(STORAGE_KEYS.journals).filter((item) => item.id !== id);
+  return write(STORAGE_KEYS.journals, items);
+}
+
+/* ----- Reframing (F-05) ----- */
+
+export function getReframes() {
+  return read(STORAGE_KEYS.reframes);
+}
+
+export function addReframe(entry) {
+  const items = read(STORAGE_KEYS.reframes);
+  items.unshift(entry);
+  return write(STORAGE_KEYS.reframes, items);
+}
+
+export function removeReframe(id) {
+  const items = read(STORAGE_KEYS.reframes).filter((item) => item.id !== id);
+  return write(STORAGE_KEYS.reframes, items);
+}
+
+/* ----- Letters (F-06) ----- */
+
+export function getLetters() {
+  return read(STORAGE_KEYS.letters);
+}
+
+export function addLetter(entry) {
+  const items = read(STORAGE_KEYS.letters);
+  items.unshift(entry);
+  return write(STORAGE_KEYS.letters, items);
+}
+
+export function patchLetter(id, patch) {
+  const items = read(STORAGE_KEYS.letters).map((item) =>
+    item.id === id ? { ...item, ...patch } : item,
+  );
+  return write(STORAGE_KEYS.letters, items);
+}
+
+export function removeLetter(id) {
+  const items = read(STORAGE_KEYS.letters).filter((item) => item.id !== id);
+  return write(STORAGE_KEYS.letters, items);
+}
+
 function entityName(key) {
   if (key === STORAGE_KEYS.checkins) return 'checkins';
   if (key === STORAGE_KEYS.journals) return 'journals';

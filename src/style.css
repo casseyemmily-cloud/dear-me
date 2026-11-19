@@ -175,12 +175,16 @@ button {
 .main {
   max-width: var(--content-width);
   margin: 0 auto;
-  padding: var(--space-6) var(--space-5) var(--space-7);
+  padding: var(--space-6) var(--space-5) 72px;
 }
 
 .stack {
   display: grid;
-  gap: var(--space-5);
+  gap: clamp(20px, 2.5vw, 32px);
+}
+
+.stack--two {
+  grid-template-columns: 1fr;
 }
 
 .hero {
@@ -265,7 +269,8 @@ button {
 
 .grid {
   display: grid;
-  gap: var(--space-5);
+  gap: clamp(16px, 2vw, 24px);
+  align-items: start;
 }
 
 .grid--two {
@@ -273,19 +278,21 @@ button {
 }
 
 .card {
+  min-width: 0;
   background: var(--white);
   border: var(--border-card);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: var(--space-5);
+  padding: clamp(18px, 2.4vw, 28px);
 }
 
 .card__head {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--space-3);
-  margin-bottom: var(--space-2);
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
 }
 
 .card__title {
@@ -295,6 +302,7 @@ button {
 .card__note {
   color: var(--mauve);
   font-size: 15px;
+  margin-bottom: var(--space-4);
 }
 
 .card__slot {
@@ -316,7 +324,30 @@ button {
 }
 
 .page-intro {
-  margin-bottom: var(--space-1);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.page-intro__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.page-intro__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border: 1px solid var(--rose);
+  border-radius: 14px 14px 18px 14px;
+  background: var(--blush);
+}
+
+.page-intro__icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .page-intro__title {
@@ -325,12 +356,811 @@ button {
 
 .page-intro__sub {
   color: var(--mauve);
-  margin-top: var(--space-2);
+  padding-left: 52px;
 }
 
 .inline-disclaimer {
   font-size: 12px;
   color: var(--mauve);
+}
+
+/* ---------- F-01: form check-in ---------- */
+
+#check-in {
+  scroll-margin-top: 88px;
+}
+
+.form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
+.field__hint {
+  font-size: 12px;
+  color: var(--mauve);
+}
+
+.field--range .field__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.form__row {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chips--mood {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.chip {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--blush);
+  border-radius: var(--radius-pill);
+  background: var(--cream);
+  color: var(--charcoal);
+  font-size: 14px;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.chip:hover {
+  background: var(--blush);
+}
+
+.chip.is-active {
+  background: var(--blush);
+  border-color: var(--mauve);
+  color: var(--mauve);
+  font-weight: 600;
+}
+
+.chip.is-active::after {
+  content: '✓';
+  font-size: 12px;
+}
+
+.range {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--mauve);
+}
+
+.range__value {
+  min-width: 30px;
+  text-align: center;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-input);
+  background: var(--blush);
+  color: var(--mauve);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  padding: var(--space-3);
+  border: 1px solid var(--blush);
+  border-radius: var(--radius-input);
+  background: var(--white);
+}
+
+.textarea:hover {
+  border-color: var(--rose);
+}
+
+.textarea:focus {
+  border-color: var(--mauve);
+}
+
+.note-counter {
+  justify-self: end;
+  font-size: 12px;
+  color: var(--mauve);
+}
+
+.btn--block {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* ---------- F-02: laporan emosi & reminder ---------- */
+
+.report-host {
+  min-height: 96px;
+}
+
+.report {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.report__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.report__icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blush);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.report__meta {
+  flex: 1 1 auto;
+}
+
+.report__weather {
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+
+.report__date {
+  font-size: 12px;
+  color: var(--mauve);
+}
+
+.report__line {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--mauve);
+}
+
+.reminder {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-5) 88px var(--space-5) var(--space-5);
+  border-radius: var(--radius-card);
+  background: var(--blush);
+}
+
+.reminder__title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mauve);
+}
+
+.reminder__quote {
+  margin-top: var(--space-2);
+  max-width: 34ch;
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.sprig {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  width: 72px;
+  height: 72px;
+}
+
+.sprig-button {
+  position: absolute;
+  right: 6px;
+  bottom: 2px;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.sprig-button .sprig {
+  position: static;
+  width: 100%;
+  height: 100%;
+}
+
+.sprig--tiny {
+  position: static;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+}
+
+.care-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.care-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--blush);
+  border-radius: var(--radius-pill);
+  background: var(--cream);
+  color: var(--sage-ink);
+  font-size: 13px;
+}
+
+.report__detail {
+  font-size: 13px;
+  color: var(--mauve);
+}
+
+.report__empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 96px;
+}
+
+/* ---------- Kartu cute & girly ---------- */
+
+.card--cute {
+  position: relative;
+  border: 1px solid var(--rose);
+  border-radius: 20px 20px 24px 20px;
+  background: linear-gradient(160deg, var(--white) 0%, #fffdfc 60%, var(--cream) 100%);
+  box-shadow: inset 0 0 0 3px rgba(245, 220, 229, 0.45), var(--shadow-card);
+}
+
+.card--cute::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-bottom: 2px solid var(--blush);
+  border-right: 2px solid var(--blush);
+  border-radius: 0 0 14px 0;
+  pointer-events: none;
+}
+
+.card__flower {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+
+.card__flower .icon-flower {
+  width: 22px;
+  height: 22px;
+}
+
+.card__flower + .card__title {
+  flex: 1 1 auto;
+}
+
+.icon-flower,
+.icon-star,
+.icon-sparkle,
+.icon-heart,
+.icon-leaf {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+/* ---------- Tombol ikon interaktif ---------- */
+
+.cute-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--blush);
+  border-radius: 50%;
+  background: var(--cream);
+  transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+
+.cute-icon:hover {
+  background: var(--blush);
+  border-color: var(--mauve);
+}
+
+.cute-icon:hover svg {
+  transform: rotate(10deg) scale(1.08);
+}
+
+.cute-icon svg {
+  transition: transform 150ms ease;
+}
+
+@keyframes dm-pop {
+  0% { transform: scale(1) rotate(0); }
+  45% { transform: scale(1.3) rotate(14deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.cute-icon.is-popping svg {
+  animation: dm-pop 450ms ease;
+}
+
+/* ---------- Input & select tambahan ---------- */
+
+.input,
+.select {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--blush);
+  border-radius: var(--radius-input);
+  background: var(--white);
+}
+
+.input:hover,
+.select:hover,
+.textarea:hover {
+  border-color: var(--rose);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--mauve);
+}
+
+.textarea--tall {
+  min-height: 112px;
+}
+
+.btn-text {
+  border: 0;
+  background: transparent;
+  color: var(--mauve);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: var(--space-2);
+  min-height: 44px;
+}
+
+.btn-text:hover {
+  color: var(--charcoal);
+}
+
+/* ---------- F-04: companion ---------- */
+
+.companion {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--rose);
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, var(--blush) 0%, var(--cream) 100%);
+}
+
+.companion__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.companion__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mauve);
+}
+
+.companion__question {
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--charcoal);
+}
+
+.companion__controls {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* ---------- F-03: riwayat jurnal ---------- */
+
+.journal-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.journal-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--blush);
+  border-radius: var(--radius-card);
+  background: var(--white);
+}
+
+.journal-item__body {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.journal-item__date {
+  font-size: 12px;
+  color: var(--mauve);
+}
+
+.journal-item__title {
+  font-family: var(--font-display);
+  font-size: 19px;
+}
+
+.journal-item__text {
+  font-size: 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.journal-item__question {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--mauve);
+}
+
+.journal-item > .cute-icon {
+  align-self: start;
+}
+
+.journal-item > .btn-text {
+  grid-column: 2;
+  justify-self: start;
+}
+
+.win-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--blush);
+  border-radius: var(--radius-pill);
+  background: var(--cream);
+  color: var(--sage-ink);
+  font-size: 13px;
+}
+
+.badge--seed {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+}
+
+/* ---------- Empty state ---------- */
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--rose);
+  border-radius: var(--radius-card);
+  background: var(--cream);
+  text-align: center;
+}
+
+.empty-state > svg {
+  width: 44px;
+  height: 44px;
+}
+
+.empty-state__title {
+  font-family: var(--font-display);
+  font-size: 19px;
+}
+
+.empty-state__text {
+  max-width: 40ch;
+  font-size: 14px;
+  color: var(--mauve);
+}
+
+/* ---------- F-07: napas & afirmasi ---------- */
+
+.breathing {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.breathing__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 168px;
+  height: 168px;
+}
+
+.breathing__circle {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: var(--blush);
+  border: 2px solid var(--rose);
+  font-size: 40px;
+  transition: transform 1s ease, background-color 1s ease;
+}
+
+.breathing__circle[data-phase='tarik'],
+.breathing__circle[data-phase='tahan'] {
+  transform: scale(1.16);
+  background: #f7e6ee;
+}
+
+.breathing__circle[data-phase='hembus'] {
+  transform: scale(0.9);
+  background: var(--cream);
+}
+
+.breathing__visual > .cute-icon {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  z-index: 1;
+}
+
+.breathing__phase {
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--mauve);
+}
+
+.breathing__cycle {
+  font-size: 13px;
+  color: var(--charcoal);
+}
+
+.breathing__track {
+  width: 100%;
+  max-width: 280px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--blush);
+}
+
+.breathing__fill {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mauve);
+  transition: width 350ms ease;
+}
+
+.affirmation {
+  display: grid;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.affirmation__quote {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--mauve);
+}
+
+.affirmation__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.card--affirmation,
+.card--breathing {
+  background: linear-gradient(160deg, var(--blush) 0%, var(--cream) 100%);
+}
+
+/* ---------- F-05: riwayat reframing ---------- */
+
+.entry-list,
+.letter-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.entry-item,
+.letter-item {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--blush);
+  border-radius: var(--radius-card);
+  background: var(--white);
+}
+
+.entry-item__body,
+.letter-item__body {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.entry-item__date,
+.letter-item__date {
+  font-size: 12px;
+  color: var(--mauve);
+}
+
+.entry-item__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mauve);
+}
+
+.entry-item__label--soft {
+  color: var(--sage-ink);
+}
+
+.entry-item__text,
+.letter-item__text,
+.journal-item__text {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.entry-item__text--soft {
+  color: var(--sage-ink);
+}
+
+.entry-item__arrow {
+  font-size: 18px;
+  color: var(--rose);
+  line-height: 1;
+}
+
+/* ---------- F-06: surat ---------- */
+
+.card--letter {
+  background: linear-gradient(160deg, var(--white) 0%, #fff8fb 100%);
+}
+
+.letter-item__title {
+  font-family: var(--font-display);
+  font-size: 19px;
+}
+
+.status {
+  justify-self: start;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status--locked {
+  border: 1px solid var(--blush);
+  background: var(--cream);
+  color: var(--mauve);
+}
+
+.status--open {
+  border: 1px solid var(--rose);
+  background: var(--blush);
+  color: var(--mauve);
+}
+
+.letter-item__hint {
+  font-size: 13px;
+  color: var(--mauve);
+}
+
+.btn--small {
+  min-height: 44px;
+  font-size: 13px;
+  padding: var(--space-2) var(--space-4);
+  justify-self: start;
+}
+
+/* ---------- F-08: journey ---------- */
+
+.journey {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.stat {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  padding: var(--space-4);
+  border: 1px solid var(--blush);
+  border-radius: 18px 18px 22px 18px;
+  background: linear-gradient(160deg, var(--white), var(--cream));
+}
+
+.stat__value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--mauve);
+  overflow-wrap: anywhere;
+}
+
+.stat__label {
+  font-size: 12px;
+  color: var(--charcoal);
+}
+
+.journey__bonus {
+  font-size: 13px;
+  color: var(--mauve);
+}
+
+.seed-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--rose);
+  border-radius: var(--radius-pill);
+  background: var(--blush);
+  color: var(--mauve);
+  font-size: 12px;
+}
+
+.seed-note svg {
+  width: 20px;
+  height: 20px;
+}
+
+.journey__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 /* ---------- Footer / disclaimer permanen ---------- */
@@ -376,6 +1206,27 @@ button {
 @media (min-width: 900px) {
   .grid--two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chips--mood {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .form__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stack--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .companion__controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -436,6 +1287,16 @@ button {
 
   .hero__title {
     font-size: 30px;
+  }
+
+  .reminder {
+    padding-right: 76px;
+  }
+
+  .sprig,
+  .sprig-button {
+    width: 62px;
+    height: 62px;
   }
 
   .hero__subtitle {

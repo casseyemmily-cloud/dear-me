@@ -77,6 +77,12 @@ export const WEATHER_RULES = [
   { type: 'berawan', test: () => true },
 ];
 
+/** F-02: tentukan cuaca dari jawaban (aturan dibaca dari atas → prioritas badai). */
+export function resolveWeather({ mood, energi, tidur }) {
+  const aturan = WEATHER_RULES.find((rule) => rule.test({ mood, energi, tidur }));
+  return aturan ? aturan.type : 'berawan';
+}
+
 /** F-02: A Little Reminder For You. */
 export const REMINDERS = [
   'Kamu tidak harus menyelesaikan semuanya hari ini.',
@@ -84,6 +90,17 @@ export const REMINDERS = [
   'Rasa hari ini tidak menentukan siapa kamu selamanya.',
   'Boleh berhenti sejenak sebelum melanjutkan.',
 ];
+
+/** F-01: batas karakter catatan singkat & caption laporan. */
+export const NOTE_MAX_LENGTH = 140;
+export const CHECKIN_DISCLAIMER = 'Ringkasan ini adalah refleksi, bukan diagnosis medis.';
+
+/** Pilih reminder secara deterministik per hari (tetap lokal, tanpa API). */
+export function pickReminder(tanggal = toISODate()) {
+  const hari = new Date(`${tanggal}T00:00:00`);
+  const index = Math.abs(Math.floor(hari.getTime() / 86400000)) % REMINDERS.length;
+  return REMINDERS[index];
+}
 
 /** F-04: pertanyaan reflektif rule-based (peta topik/mood). */
 export const REFLECTIVE_TOPICS = ['Umum', 'Hubungan', 'Kerja & Studi', 'Rasa Lelah', 'Rasa Cemas', 'Syukur'];
@@ -113,7 +130,16 @@ export const REFLECTIVE_QUESTIONS = {
     'Apa hal kecil yang ingin kamu syukuri hari ini?',
     'Siapa yang membuat harimu sedikit lebih hangat?',
   ],
+  Senang: ['Apa yang membuat hari ini terasa ringan?'],
+  Tenang: ['Apa yang membantu hatimu tetap tenang hari ini?'],
+  Lelah: ['Apa yang bisa kamu tunda supaya bisa beristirahat?'],
+  Cemas: ['Apa bagian dari rasa cemas ini yang bisa kamu beri nama?'],
+  Sedih: ['Apa yang kamu butuhkan saat merasa sedih hari ini?'],
+  Marah: ['Apa yang terasa tidak adil hari ini, dan apa yang kamu butuhkan?'],
 };
+
+/** F-03: jumlah kartu yang tampil sebelum tombol "Tampilkan lebih banyak". */
+export const JOURNAL_PREVIEW_LIMIT = 10;
 
 /** F-07: afirmasi harian. */
 export const AFFIRMATIONS = [
@@ -145,6 +171,12 @@ export function shiftISODate(days) {
   const date = new Date();
   date.setDate(date.getDate() + days);
   return toISODate(date);
+}
+
+/** ISO datetime lokal (bukan UTC) untuk JournalEntry.tanggal. */
+export function toISOLocalDateTime(date = new Date()) {
+  const pad = (value) => String(value).padStart(2, '0');
+  return `${toISODate(date)}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 /**
