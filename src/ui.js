@@ -123,6 +123,15 @@ const PHOTO_SOURCES = {
   },
 };
 
+/** Maskot Dearie: URL Pinterest sebagai utama, salinan lokal sebagai cadangan. */
+const DEARIE = {
+  src: 'https://i.pinimg.com/1200x/b0/25/d2/b025d2b33ebe6db7e576ff3476f9acde.jpg',
+  fallbackSrc: '/images/dearie.jpg',
+  source: 'https://i.pinimg.com/1200x/b0/25/d2/b025d2b33ebe6db7e576ff3476f9acde.jpg',
+  alt: 'Maskot Dearie, pendamping kecil di kartu ringkasan emosi.',
+  greeting: 'Hi, aku Dearie, asisten kamu',
+};
+
 /** Gambar dekoratif dengan alt jelas + fallback aman bila file gagal dimuat. */
 function renderPhotoAccent(kind, className = '') {
   const foto = PHOTO_SOURCES[kind];
@@ -151,6 +160,43 @@ function renderPhotoAccent(kind, className = '') {
 
   return el('figure', { class: `photo-accent ${className}`.trim(), 'data-source': foto.source }, [
     gambar,
+  ]);
+}
+
+/** Maskot kecil: gambar eksternal → salinan lokal → elemen teks aman. */
+function renderDearie() {
+  let tahap = 0;
+
+  const gambar = el('img', {
+    class: 'dearie__img',
+    src: DEARIE.src,
+    alt: DEARIE.alt,
+    loading: 'lazy',
+    decoding: 'async',
+    'data-source': DEARIE.source,
+    onerror: (event) => {
+      const img = event.currentTarget;
+      if (tahap === 0) {
+        tahap = 1;
+        img.src = DEARIE.fallbackSrc;
+        return;
+      }
+      if (tahap === 1) {
+        tahap = 2;
+        const fallback = el('span', {
+          class: 'dearie__fallback',
+          role: 'img',
+          'aria-label': DEARIE.alt,
+          text: '🌷',
+        });
+        img.replaceWith(fallback);
+      }
+    },
+  });
+
+  return el('div', { class: 'dearie' }, [
+    el('figure', { class: 'dearie__frame', 'data-source': DEARIE.source }, [gambar]),
+    el('p', { class: 'dearie__greeting', text: DEARIE.greeting }),
   ]);
 }
 
@@ -893,6 +939,7 @@ function renderReportInto(host, entry) {
         ? el('p', { class: 'report__detail', text: `Kebutuhanmu hari ini: ${entry.kebutuhan}.` })
         : null,
       el('p', { class: 'inline-disclaimer', text: CHECKIN_DISCLAIMER }),
+      renderDearie(),
     ]),
   );
 }
