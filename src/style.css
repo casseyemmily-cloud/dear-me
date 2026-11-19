@@ -428,6 +428,31 @@ button {
   grid-template-columns: 1fr;
 }
 
+/* Dua kartu utama beranda: tinggi disamakan, isi tidak dipangkas. */
+.overview-grid {
+  align-items: stretch;
+}
+
+.overview-grid > .card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.overview-grid .report-host {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.overview-grid .form,
+.overview-grid .report {
+  flex: 1;
+  align-content: start;
+  min-width: 0;
+}
+
 .card {
   min-width: 0;
   background: var(--white);
@@ -689,10 +714,10 @@ button {
     90deg,
     var(--accent) 0%,
     var(--accent) var(--range-progress),
-    var(--pink-soft) var(--range-progress),
-    var(--pink-soft) 100%
+    var(--blush) var(--range-progress),
+    var(--blush) 100%
   );
-  box-shadow: inset 0 0 0 1px var(--accent-soft), inset 0 1px 2px rgba(57, 52, 58, 0.08);
+  box-shadow: inset 0 0 0 1px var(--rose), inset 0 1px 2px rgba(57, 52, 58, 0.1);
 }
 
 .range::-webkit-slider-thumb {
@@ -704,7 +729,7 @@ button {
   border: 3px solid var(--white);
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 2px 6px rgba(57, 52, 58, 0.18);
+  box-shadow: 0 0 0 2px var(--accent-soft), 0 2px 6px rgba(57, 52, 58, 0.18);
   transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
@@ -736,9 +761,10 @@ button {
 .range__scale {
   display: flex;
   justify-content: space-between;
-  margin-top: -4px;
-  padding-inline: 2px;
+  margin-top: -2px;
+  padding-inline: clamp(2px, 0.6vw, 6px);
   font-size: 11px;
+  font-weight: 600;
   color: var(--mauve);
 }
 
@@ -2046,6 +2072,18 @@ button {
 
   .btn {
     min-height: 44px;
+  }
+}
+
+/* ---------- 390 px: pengaman lebar kartu & slider ---------- */
+
+@media (max-width: 400px) {
+  .overview-grid > .card,
+  .overview-grid .report-host,
+  .overview-grid .report,
+  .field--range {
+    min-width: 0;
+    max-width: 100%;
   }
 }
 
