@@ -1861,7 +1861,7 @@ export function renderContent(main, activeTab) {
     case 'beranda':
       content = el('div', { class: 'stack' }, [
         renderHero(),
-        el('div', { class: 'grid grid--two' }, [
+        el('div', { class: 'grid grid--two overview-grid' }, [
           renderCheckInCard(),
           renderReportCard(),
         ]),
