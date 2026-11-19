@@ -113,6 +113,7 @@ body {
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
 h1,
@@ -219,12 +220,17 @@ button {
   color: var(--mauve);
   font-size: 13px;
   white-space: nowrap;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
 }
 
 .theme-toggle:hover {
   background: var(--pink-soft);
   border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.theme-toggle:active {
+  transform: scale(0.97);
 }
 
 .theme-toggle__icon {
@@ -376,7 +382,16 @@ button {
   padding: var(--space-3) var(--space-5);
   border: 1px solid transparent;
   font-weight: 600;
-  transition: filter 150ms ease, background-color 150ms ease;
+  transition: filter 150ms ease, background-color 150ms ease, transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 .btn--primary {
@@ -626,13 +641,19 @@ button {
   white-space: normal;
   overflow-wrap: anywhere;
   box-shadow: inset 0 0 0 1px var(--white);
-  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease,
+    transform 150ms ease;
 }
 
 .chip:hover {
   background: var(--accent-soft);
   border-color: var(--accent);
   color: var(--accent-ink);
+  transform: translateY(-1px);
+}
+
+.chip:active {
+  transform: scale(0.98);
 }
 
 .chip.is-active {
@@ -684,6 +705,7 @@ button {
   border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 2px 6px rgba(57, 52, 58, 0.18);
+  transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
 .range::-moz-range-thumb {
@@ -692,6 +714,23 @@ button {
   border: 3px solid var(--white);
   border-radius: 50%;
   background: var(--accent);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.range:hover::-webkit-slider-thumb {
+  transform: scale(1.08);
+}
+
+.range:active::-webkit-slider-thumb {
+  transform: scale(0.96);
+}
+
+.range:hover::-moz-range-thumb {
+  transform: scale(1.08);
+}
+
+.range:active::-moz-range-thumb {
+  transform: scale(0.96);
 }
 
 .range__scale {
@@ -1005,6 +1044,10 @@ button {
   border-color: var(--mauve);
 }
 
+.cute-icon:active {
+  transform: scale(0.94);
+}
+
 .cute-icon:hover svg {
   transform: rotate(10deg) scale(1.08);
 }
@@ -1021,6 +1064,40 @@ button {
 
 .cute-icon.is-popping svg {
   animation: dm-pop 450ms ease;
+}
+
+/* Ikon dekoratif kecil: mengambang & berkilau tipis, tanpa pergeseran horizontal. */
+@keyframes dm-float {
+  0%, 100% { transform: translateY(0); opacity: 0.88; }
+  50% { transform: translateY(-2px); opacity: 1; }
+}
+
+@keyframes dm-shimmer {
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
+.hero__charms svg,
+.checkin__decor svg,
+.breathing__decor svg,
+.affirmation__decor svg {
+  animation: dm-float 3.2s ease-in-out infinite;
+}
+
+.hero__charms svg:nth-child(2),
+.checkin__decor svg:nth-child(2),
+.breathing__decor svg:nth-child(2),
+.affirmation__decor svg:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.hero__charms svg:nth-child(3),
+.checkin__decor svg:nth-child(3) {
+  animation-delay: 0.8s;
+}
+
+.icon-sparkle {
+  animation: dm-shimmer 3.6s ease-in-out infinite;
 }
 
 /* ---------- Input & select tambahan ---------- */
@@ -1268,18 +1345,21 @@ button {
   border: 2px solid var(--accent);
   box-shadow: 0 0 0 7px var(--accent-soft), var(--shadow-card);
   font-size: 40px;
-  transition: transform 1s ease, background-color 1s ease;
+  opacity: 0.92;
+  transition: transform 1s ease, background-color 1s ease, opacity 1s ease;
 }
 
 .breathing__circle[data-phase='tarik'],
 .breathing__circle[data-phase='tahan'] {
   transform: scale(1.16);
   background: var(--breath-glow);
+  opacity: 1;
 }
 
 .breathing__circle[data-phase='hembus'] {
   transform: scale(0.9);
   background: var(--cream);
+  opacity: 0.86;
 }
 
 .breathing__visual > .cute-icon {
@@ -1988,5 +2068,9 @@ button {
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
