@@ -17,6 +17,22 @@
   --sage-ink: #4f6b57;
   --white: #ffffff;
 
+  /* Aksen manis: pink tajam dipakai untuk garis/icon, bukan teks kecil */
+  --accent: #ff3d81;
+  --accent-ink: #9b1d54;
+  --accent-soft: #ffe0eb;
+  --accent-wash: rgba(255, 61, 129, 0.1);
+  --lavender-wash: rgba(142, 122, 168, 0.09);
+  --sage-wash: rgba(124, 154, 130, 0.09);
+  --peach: #fce4d6;
+  --pink-soft: #ffe3ed;
+  --lavender-soft: #ede7f6;
+  --sage-soft: #e3efe6;
+  --header-bg: rgba(255, 249, 245, 0.94);
+  --card-highlight: #fffdfc;
+  --card-tint: #fff8fb;
+  --breath-glow: #f7e6ee;
+
   /* Tipografi — ganti dengan @font-face lokal saat file font tersedia */
   --font-display: Georgia, 'Times New Roman', serif;
   --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -39,10 +55,45 @@
   --content-width: 1080px;
 }
 
+/* Palet gelap pastel/berry — teks tetap terang di atas permukaan gelap. */
+:root[data-theme='dark'] {
+  --cream: #1f1724;
+  --blush: #3a2a40;
+  --rose: #8f6280;
+  --mauve: #e9bbd6;
+  --charcoal: #f7ecf3;
+  --lavender: #b69bd0;
+  --lavender-ink: #d8c8f0;
+  --sage: #8fae97;
+  --sage-ink: #bdd8c6;
+  --white: #2a2030;
+  --accent: #ff6fa3;
+  --accent-ink: #ffd1e3;
+  --accent-soft: #5a3148;
+  --accent-wash: rgba(255, 111, 163, 0.12);
+  --lavender-wash: rgba(182, 155, 208, 0.1);
+  --sage-wash: rgba(143, 174, 151, 0.1);
+  --peach: #422d38;
+  --pink-soft: #432b3c;
+  --lavender-soft: #3b3049;
+  --sage-soft: #2c4036;
+  --header-bg: rgba(31, 23, 36, 0.94);
+  --card-highlight: #2f2434;
+  --card-tint: #33253a;
+  --breath-glow: #4a3346;
+  --border-card: 1px solid #6e4a63;
+  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+img,
+svg {
+  max-width: 100%;
 }
 
 html {
@@ -51,7 +102,12 @@ html {
 
 body {
   margin: 0;
-  background: var(--cream);
+  min-width: 0;
+  background:
+    radial-gradient(circle at 6% -8%, var(--accent-wash), transparent 26rem),
+    radial-gradient(circle at 94% 2%, var(--lavender-wash), transparent 24rem),
+    radial-gradient(circle at 50% 100%, var(--sage-wash), transparent 30rem),
+    var(--cream);
   color: var(--charcoal);
   font-family: var(--font-body);
   font-size: 16px;
@@ -98,7 +154,7 @@ button {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(255, 249, 245, 0.94);
+  background: var(--header-bg);
   border-bottom: var(--border-card);
   backdrop-filter: blur(8px);
 }
@@ -143,6 +199,49 @@ button {
   color: var(--mauve);
 }
 
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-pill);
+  background: var(--cream);
+  color: var(--mauve);
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.theme-toggle:hover {
+  background: var(--pink-soft);
+  border-color: var(--accent);
+}
+
+.theme-toggle__icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.theme-toggle__sun,
+:root[data-theme='dark'] .theme-toggle__moon {
+  display: none;
+}
+
+:root[data-theme='dark'] .theme-toggle__sun {
+  display: block;
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -164,10 +263,10 @@ button {
 }
 
 .nav__tab.is-active {
-  color: var(--mauve);
-  background: var(--blush);
+  color: var(--accent-ink);
+  background: linear-gradient(135deg, var(--accent-soft), var(--blush));
   font-weight: 600;
-  box-shadow: inset 0 -2px 0 var(--mauve);
+  box-shadow: inset 0 -2px 0 var(--accent), 0 0 0 1px var(--accent-soft);
 }
 
 /* ---------- Main & hero ---------- */
@@ -189,6 +288,8 @@ button {
 
 .hero {
   position: relative;
+  display: grid;
+  gap: var(--space-2);
   overflow: hidden;
   border: var(--border-card);
   border-radius: var(--radius-card);
@@ -203,12 +304,30 @@ button {
   max-width: 620px;
 }
 
+.hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 12px;
   color: var(--mauve);
-  margin-bottom: var(--space-3);
+}
+
+.hero__charms {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.hero__charms svg {
+  width: 14px;
+  height: 14px;
 }
 
 .hero__title {
@@ -238,6 +357,20 @@ button {
   height: auto;
 }
 
+/* Polaroid kecil di samping ilustrasi hero, tidak menutupi tombol. */
+.hero__photo {
+  position: absolute;
+  right: clamp(12px, 6%, 48px);
+  bottom: clamp(12px, 8%, 32px);
+  z-index: 1;
+  width: clamp(84px, 11vw, 132px);
+  max-width: 100%;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  transform: rotate(-6deg);
+  pointer-events: none;
+}
+
 .btn {
   border-radius: var(--radius-pill);
   padding: var(--space-3) var(--space-5);
@@ -247,22 +380,25 @@ button {
 }
 
 .btn--primary {
-  background: var(--mauve);
+  background: linear-gradient(135deg, var(--mauve), var(--accent-ink));
   color: var(--cream);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft), var(--shadow-card);
 }
 
 .btn--primary:hover {
-  filter: brightness(0.92);
+  filter: brightness(1.06);
 }
 
 .btn--secondary {
   background: var(--cream);
   color: var(--mauve);
-  border-color: var(--rose);
+  border-color: var(--accent-soft);
 }
 
 .btn--secondary:hover {
-  background: var(--blush);
+  background: var(--pink-soft);
+  border-color: var(--accent);
 }
 
 /* ---------- Kartu ---------- */
@@ -297,6 +433,7 @@ button {
 
 .card__title {
   font-size: 22px;
+  overflow-wrap: anywhere;
 }
 
 .card__note {
@@ -352,6 +489,7 @@ button {
 
 .page-intro__title {
   font-size: 26px;
+  overflow-wrap: anywhere;
 }
 
 .page-intro__sub {
@@ -364,6 +502,58 @@ button {
   color: var(--mauve);
 }
 
+/* Gambar lokal: frame pastel + aksen #FF3D81, fallback aman saat error. */
+.photo-accent {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border: 3px solid var(--white);
+  border-radius: 18px 22px 18px 26px;
+  background: linear-gradient(160deg, var(--pink-soft), var(--blush));
+  box-shadow: 0 0 0 2px var(--accent), 0 8px 18px rgba(57, 52, 58, 0.14);
+}
+
+.photo-accent__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-accent__fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 52px;
+  color: var(--accent-ink);
+  font-size: 26px;
+  background: linear-gradient(160deg, var(--pink-soft), var(--lavender-soft));
+}
+
+.page-intro--with-photo {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-5);
+}
+
+.page-intro--with-photo > .page-intro__row,
+.page-intro--with-photo > .page-intro__sub {
+  grid-column: 1;
+}
+
+.page-intro--with-photo > .photo-accent {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-self: end;
+  width: clamp(88px, 12vw, 132px);
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  transform: rotate(3deg);
+}
+
 /* ---------- F-01: form check-in ---------- */
 
 #check-in {
@@ -372,7 +562,7 @@ button {
 
 .form {
   display: grid;
-  gap: var(--space-5);
+  gap: clamp(var(--space-4), 1.6vw, var(--space-5));
 }
 
 .field {
@@ -406,38 +596,51 @@ button {
 .chips {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--space-2);
+  max-width: 100%;
 }
 
-.chips--mood {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.chips--mood,
+.chips--need {
+  max-width: 100%;
 }
 
 .chip {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--blush);
+  gap: 6px;
+  padding: 10px var(--space-3);
+  border: 1px solid var(--accent-soft);
   border-radius: var(--radius-pill);
   background: var(--cream);
   color: var(--charcoal);
   font-size: 14px;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  box-shadow: inset 0 0 0 1px var(--white);
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .chip:hover {
-  background: var(--blush);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-ink);
 }
 
 .chip.is-active {
-  background: var(--blush);
-  border-color: var(--mauve);
-  color: var(--mauve);
+  background: linear-gradient(135deg, var(--pink-soft), var(--blush));
+  border-color: var(--accent);
+  color: var(--accent-ink);
   font-weight: 600;
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 .chip.is-active::after {
@@ -446,9 +649,58 @@ button {
 }
 
 .range {
+  --range-progress: 0%;
+  appearance: none;
+  -webkit-appearance: none;
   width: 100%;
+  max-width: 100%;
   min-height: 44px;
-  accent-color: var(--mauve);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  accent-color: var(--accent);
+}
+
+.range::-webkit-slider-runnable-track,
+.range::-moz-range-track {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    var(--accent) var(--range-progress),
+    var(--pink-soft) var(--range-progress),
+    var(--pink-soft) 100%
+  );
+  box-shadow: inset 0 0 0 1px var(--accent-soft), inset 0 1px 2px rgba(57, 52, 58, 0.08);
+}
+
+.range::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -6px;
+  border: 3px solid var(--white);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 2px 6px rgba(57, 52, 58, 0.18);
+}
+
+.range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--white);
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.range__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -4px;
+  padding-inline: 2px;
+  font-size: 11px;
+  color: var(--mauve);
 }
 
 .range__value {
@@ -478,6 +730,54 @@ button {
 
 .textarea:focus {
   border-color: var(--mauve);
+}
+
+/* C-03: kartu check-in yang lebih berkarakter. */
+.card--checkin {
+  border: 1px solid var(--accent);
+  background: linear-gradient(160deg, var(--white) 0%, var(--card-tint) 55%, var(--pink-soft) 100%);
+  box-shadow: inset 0 0 0 4px var(--white), inset 0 0 0 5px var(--accent-soft), var(--shadow-card);
+}
+
+.checkin__head-extra {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-width: 0;
+  margin-left: auto;
+}
+
+.checkin__decor {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.checkin__decor svg {
+  width: 18px;
+  height: 18px;
+}
+
+.checkin__photo {
+  flex: 0 0 auto;
+  width: 64px;
+  aspect-ratio: 1;
+  margin-left: 0;
+  transform: rotate(4deg);
+}
+
+#checkin-note {
+  background: var(--cream);
+  border-color: var(--accent-soft);
+  border-radius: 14px 18px 14px 18px;
+}
+
+#checkin-note:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .note-counter {
@@ -629,10 +929,10 @@ button {
 
 .card--cute {
   position: relative;
-  border: 1px solid var(--rose);
-  border-radius: 20px 20px 24px 20px;
-  background: linear-gradient(160deg, var(--white) 0%, #fffdfc 60%, var(--cream) 100%);
-  box-shadow: inset 0 0 0 3px rgba(245, 220, 229, 0.45), var(--shadow-card);
+  border: 1px solid var(--accent-soft);
+  border-radius: 22px 22px 26px 20px;
+  background: linear-gradient(160deg, var(--white) 0%, var(--card-highlight) 60%, var(--cream) 100%);
+  box-shadow: inset 0 0 0 3px var(--white), 0 0 0 1px var(--accent-soft), var(--shadow-card);
 }
 
 .card--cute::after {
@@ -643,8 +943,8 @@ button {
   width: 26px;
   height: 26px;
   border: 0;
-  border-bottom: 2px solid var(--blush);
-  border-right: 2px solid var(--blush);
+  border-bottom: 2px solid var(--accent-soft);
+  border-right: 2px solid var(--accent-soft);
   border-radius: 0 0 14px 0;
   pointer-events: none;
 }
@@ -673,6 +973,16 @@ button {
   display: block;
   width: 24px;
   height: 24px;
+}
+
+.icon-flower,
+.icon-star,
+.icon-heart {
+  color: var(--accent);
+}
+
+.icon-sparkle {
+  color: var(--lavender);
 }
 
 /* ---------- Tombol ikon interaktif ---------- */
@@ -898,6 +1208,38 @@ button {
 
 /* ---------- F-07: napas & afirmasi ---------- */
 
+/* Dua panel wellness selalu sejajar & tinggi yang sama. */
+.wellness-grid {
+  align-items: stretch;
+}
+
+.card--wellness {
+  display: flex;
+  flex-direction: column;
+}
+
+.card--wellness > .breathing,
+.card--wellness > .affirmation {
+  flex: 1;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+}
+
+.breathing__decor,
+.affirmation__decor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.breathing__decor svg,
+.affirmation__decor svg {
+  width: 18px;
+  height: 18px;
+}
+
 .breathing {
   display: grid;
   justify-items: center;
@@ -911,6 +1253,9 @@ button {
   place-items: center;
   width: 168px;
   height: 168px;
+  max-width: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-wash), transparent 68%);
 }
 
 .breathing__circle {
@@ -920,7 +1265,8 @@ button {
   height: 132px;
   border-radius: 50%;
   background: var(--blush);
-  border: 2px solid var(--rose);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 7px var(--accent-soft), var(--shadow-card);
   font-size: 40px;
   transition: transform 1s ease, background-color 1s ease;
 }
@@ -928,7 +1274,7 @@ button {
 .breathing__circle[data-phase='tarik'],
 .breathing__circle[data-phase='tahan'] {
   transform: scale(1.16);
-  background: #f7e6ee;
+  background: var(--breath-glow);
 }
 
 .breathing__circle[data-phase='hembus'] {
@@ -946,7 +1292,7 @@ button {
 .breathing__phase {
   font-family: var(--font-display);
   font-size: 26px;
-  color: var(--mauve);
+  color: var(--accent-ink);
 }
 
 .breathing__cycle {
@@ -959,28 +1305,49 @@ button {
   max-width: 280px;
   height: 8px;
   overflow: hidden;
+  border: 1px solid var(--accent-soft);
   border-radius: var(--radius-pill);
-  background: var(--blush);
+  background: var(--pink-soft);
 }
 
 .breathing__fill {
   width: 0%;
   height: 100%;
   border-radius: inherit;
-  background: var(--mauve);
+  background: linear-gradient(90deg, var(--accent), var(--lavender));
   transition: width 350ms ease;
+}
+
+.breathing__actions {
+  display: flex;
+  justify-content: center;
 }
 
 .affirmation {
   display: grid;
-  gap: var(--space-4);
+  justify-items: center;
+  gap: var(--space-3);
   text-align: center;
 }
 
+/* Gelembung kutipan dipakai agar proporsinya setara visual napas. */
 .affirmation__quote {
+  display: grid;
+  place-items: center;
+  width: min(100%, 224px);
+  min-height: 168px;
+  margin-inline: auto;
+  padding: var(--space-5);
+  border: 2px solid var(--accent-soft);
+  border-radius: 46% 54% 50% 50% / 54% 46% 54% 46%;
+  background:
+    radial-gradient(circle at 25% 20%, var(--accent-wash), transparent 62%),
+    linear-gradient(150deg, var(--pink-soft), var(--lavender-soft));
+  box-shadow: inset 0 0 0 4px var(--white), var(--shadow-card);
   font-family: var(--font-display);
-  font-size: 24px;
-  color: var(--mauve);
+  font-size: 22px;
+  line-height: 1.35;
+  color: var(--accent-ink);
 }
 
 .affirmation__actions {
@@ -990,9 +1357,14 @@ button {
   gap: var(--space-3);
 }
 
-.card--affirmation,
 .card--breathing {
-  background: linear-gradient(160deg, var(--blush) 0%, var(--cream) 100%);
+  background: linear-gradient(155deg, var(--lavender-soft) 0%, var(--cream) 72%);
+  border-top: 3px solid var(--accent);
+}
+
+.card--affirmation {
+  background: linear-gradient(155deg, var(--pink-soft) 0%, var(--cream) 72%);
+  border-top: 3px solid var(--accent);
 }
 
 /* ---------- F-05: riwayat reframing ---------- */
@@ -1058,7 +1430,7 @@ button {
 /* ---------- F-06: surat ---------- */
 
 .card--letter {
-  background: linear-gradient(160deg, var(--white) 0%, #fff8fb 100%);
+  background: linear-gradient(160deg, var(--white) 0%, var(--card-tint) 100%);
 }
 
 .letter-item__title {
@@ -1113,25 +1485,125 @@ button {
 
 .stat {
   display: grid;
-  gap: var(--space-1);
+  gap: 2px;
   justify-items: start;
+  min-width: 0;
   padding: var(--space-4);
-  border: 1px solid var(--blush);
+  border: 1px solid var(--accent-soft);
   border-radius: 18px 18px 22px 18px;
   background: linear-gradient(160deg, var(--white), var(--cream));
+  box-shadow: inset 0 0 0 3px var(--white), var(--shadow-card);
+}
+
+.stat--pink { background: linear-gradient(155deg, var(--pink-soft), var(--cream)); }
+.stat--lavender { background: linear-gradient(155deg, var(--lavender-soft), var(--cream)); }
+.stat--peach { background: linear-gradient(155deg, var(--peach), var(--cream)); }
+.stat--sage { background: linear-gradient(155deg, var(--sage-soft), var(--cream)); }
+
+.stat__icon {
+  font-size: 20px;
+  line-height: 1;
 }
 
 .stat__value {
   font-family: var(--font-display);
   font-size: 28px;
   line-height: 1.2;
-  color: var(--mauve);
+  color: var(--accent-ink);
   overflow-wrap: anywhere;
 }
 
 .stat__label {
   font-size: 12px;
   color: var(--charcoal);
+}
+
+.journey__visuals {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+.weather-chart,
+.journey-progress {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--accent-soft);
+  border-radius: 18px 20px 18px 24px;
+  background: var(--white);
+  box-shadow: inset 0 0 0 3px var(--cream), var(--shadow-card);
+}
+
+.chart-title {
+  margin-bottom: var(--space-3);
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--mauve);
+}
+
+.weather-chart__row {
+  display: grid;
+  grid-template-columns: 22px 56px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.weather-chart__row + .weather-chart__row {
+  margin-top: var(--space-2);
+}
+
+.weather-chart__icon {
+  font-size: 16px;
+  text-align: center;
+}
+
+.weather-chart__label {
+  font-size: 12px;
+  color: var(--charcoal);
+}
+
+.weather-chart__track,
+.journey-progress__track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--blush);
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
+}
+
+.weather-chart__fill,
+.journey-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 350ms ease;
+}
+
+.weather-chart__fill--cerah { background: var(--peach); }
+.weather-chart__fill--berawan { background: var(--lavender); }
+.weather-chart__fill--hujan { background: var(--sage); }
+.weather-chart__fill--badai { background: var(--accent); }
+
+.weather-chart__count,
+.journey-progress__value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-ink);
+  text-align: right;
+}
+
+.journey-progress__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: 13px;
+  color: var(--charcoal);
+}
+
+.journey-progress__fill {
+  background: linear-gradient(90deg, var(--sage), var(--accent));
 }
 
 .journey__bonus {
@@ -1145,10 +1617,10 @@ button {
   gap: var(--space-2);
   justify-self: start;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--rose);
+  border: 1px solid var(--accent);
   border-radius: var(--radius-pill);
-  background: var(--blush);
-  color: var(--mauve);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
   font-size: 12px;
 }
 
@@ -1163,6 +1635,87 @@ button {
   gap: var(--space-2);
 }
 
+/* Kalender mood: 7 kolom, sel kecil, tanpa lebar tetap yang melebar. */
+.mood-calendar {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.mood-calendar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.mood-calendar__label {
+  flex: 1 1 140px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--mauve);
+  text-transform: capitalize;
+}
+
+.mood-calendar__nav {
+  min-height: 44px;
+  font-size: 13px;
+}
+
+.mood-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+}
+
+.mood-calendar__weekday {
+  text-align: center;
+  font-size: 11px;
+  color: var(--mauve);
+}
+
+.mood-calendar__day {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 2px;
+  border: 1px solid var(--accent-soft);
+  border-radius: 12px 14px 12px 16px;
+  background: var(--cream);
+  color: var(--charcoal);
+  font-size: 12px;
+}
+
+.mood-calendar__day--blank {
+  border-color: transparent;
+  background: transparent;
+}
+
+.mood-calendar__day.has-entry {
+  background: linear-gradient(150deg, var(--pink-soft), var(--lavender-soft));
+  border-color: var(--accent);
+}
+
+.mood-calendar__day.is-today {
+  box-shadow: 0 0 0 2px var(--accent), var(--shadow-card);
+}
+
+.mood-calendar__emoji {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.mood-calendar__legend {
+  font-size: 12px;
+  color: var(--mauve);
+}
+
 /* ---------- Footer / disclaimer permanen ---------- */
 
 .footer {
@@ -1171,15 +1724,93 @@ button {
   padding: var(--space-5) var(--space-5) var(--space-6);
 }
 
-.footer__text {
+.footer__inner {
+  display: grid;
+  gap: var(--space-4);
   max-width: var(--content-width);
   margin: 0 auto;
+}
+
+.footer__text {
   font-size: 12px;
   color: var(--charcoal);
 }
 
 .footer__text strong {
   color: var(--mauve);
+}
+
+/* Kontak WhatsApp: aksen #FF3D81 + pastel, mengikuti token light/dark. */
+.wa-contact {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 2px solid var(--accent);
+  border-radius: 20px 24px 20px 28px;
+  background: linear-gradient(140deg, var(--pink-soft), var(--blush) 60%, var(--cream));
+  box-shadow: inset 0 0 0 3px var(--white), var(--shadow-card);
+}
+
+.wa-contact__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border: 1px solid var(--rose);
+  border-radius: 14px 14px 18px 14px;
+  background: var(--white);
+}
+
+.wa-contact__icon-svg {
+  width: 26px;
+  height: 26px;
+  color: var(--accent);
+}
+
+.wa-contact__heart {
+  fill: var(--white);
+}
+
+.wa-contact__copy {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.wa-contact__title {
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: var(--accent-ink);
+}
+
+.wa-contact__note {
+  font-size: 12px;
+  color: var(--charcoal);
+}
+
+.wa-contact__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  flex: 0 0 auto;
+  border: 1px solid var(--accent);
+  background: var(--white);
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.wa-contact__link:hover {
+  background: var(--pink-soft);
+}
+
+.wa-contact__link:focus-visible {
+  outline: 3px solid var(--mauve);
+  outline-offset: 2px;
 }
 
 /* ---------- Toast ---------- */
@@ -1208,10 +1839,6 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .chips--mood {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
   .form__row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1227,6 +1854,16 @@ button {
 
   .stat-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .journey__visuals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  /* Tinggi sama hanya saat dua kartu wellness berdampingan. */
+  .card--wellness {
+    min-height: 340px;
   }
 }
 
@@ -1247,7 +1884,7 @@ button {
     overflow-x: auto;
     gap: var(--space-1);
     padding: var(--space-2) var(--space-4) calc(var(--space-2) + env(safe-area-inset-bottom));
-    background: rgba(255, 249, 245, 0.97);
+    background: var(--header-bg);
     border-top: var(--border-card);
     scrollbar-width: none;
   }
@@ -1276,13 +1913,29 @@ button {
   }
 
   .hero__glow {
-    right: -24px;
+    right: 0;
     top: auto;
-    bottom: -12px;
+    bottom: 0;
     transform: none;
-    width: 152px;
-    max-width: 46%;
-    opacity: 0.8;
+    width: 140px;
+    max-width: 44%;
+    opacity: 0.65;
+  }
+
+  .hero__photo {
+    position: static;
+    justify-self: end;
+    width: 92px;
+    margin: 0;
+    transform: rotate(-4deg);
+  }
+
+  .page-intro--with-photo {
+    column-gap: var(--space-3);
+  }
+
+  .page-intro--with-photo > .photo-accent {
+    width: 88px;
   }
 
   .hero__title {

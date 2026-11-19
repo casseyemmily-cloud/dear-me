@@ -11,7 +11,7 @@
 
 import './style.css';
 import { TABS } from './constants.js';
-import { seedIfEmpty } from './store.js';
+import { seedIfEmpty, readTheme } from './store.js';
 import { renderShell, renderContent, setActiveTab } from './ui.js';
 
 const root = document.getElementById('app');
@@ -24,6 +24,15 @@ function tabFromHash() {
 
 let activeTab = tabFromHash();
 
+/** Terapkan preferensi tema sebelum UI dibangun agar tidak ada kedip terang. */
+function initTheme() {
+  const tema = readTheme();
+  document.documentElement.dataset.theme = tema;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', tema === 'dark' ? '#1f1724' : '#fff9f5');
+}
+
+initTheme();
 seedIfEmpty();
 
 const shell = renderShell(root, {

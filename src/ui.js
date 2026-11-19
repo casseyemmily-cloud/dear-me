@@ -25,6 +25,7 @@ import {
   shiftISODate,
   resolveWeather,
   pickReminder,
+  buildWhatsAppUrl,
 } from './constants.js';
 import {
   uid,
@@ -44,6 +45,7 @@ import {
   readAll,
   loadSeed,
   clearAll,
+  writeTheme,
 } from './store.js';
 import {
   sortByNewest,
@@ -55,6 +57,9 @@ import {
   combineReframe,
   isLetterOpen,
   buildJourneySummary,
+  countWeatherDistribution,
+  littleWinRatio,
+  buildMoodCalendar,
 } from './logic.js';
 
 const DISCLAIMER_SHORT =
@@ -94,6 +99,61 @@ export function formatDate(value, options = { day: 'numeric', month: 'long', yea
   return new Intl.DateTimeFormat('id-ID', options).format(date);
 }
 
+/** Empat gambar lokal: src dipakai, URL asli hanya disimpan sebagai metadata. */
+const PHOTO_SOURCES = {
+  welcome: {
+    src: '/images/welcome.jpg',
+    source: 'https://i.pinimg.com/736x/59/f4/2f/59f42f566607f0077c83a4481193bb9a.jpg',
+    alt: 'Ilustrasi pastel bunga yang menemani sambutan Dear Me.',
+  },
+  checkin: {
+    src: '/images/checkin.jpg',
+    source: 'https://i.pinimg.com/736x/2a/96/96/2a969601f97b2fb133d9f5d0bccde182.jpg',
+    alt: 'Ilustrasi pastel hangat di samping pertanyaan check-in harian.',
+  },
+  'safe-space': {
+    src: '/images/safe-space.jpg',
+    source: 'https://i.pinimg.com/736x/d4/a3/ee/d4a3ee66ec83e8bec9b8506d6589fa83.jpg',
+    alt: 'Ilustrasi pastel menenangkan untuk ruang napas dan afirmasi.',
+  },
+  journey: {
+    src: '/images/journey.jpg',
+    source: 'https://i.pinimg.com/736x/d6/5a/3f/d65a3f6d83393823b37d28490f4b8f16.jpg',
+    alt: 'Ilustrasi pastel pertumbuhan di halaman perjalanan Dear Me.',
+  },
+};
+
+/** Gambar dekoratif dengan alt jelas + fallback aman bila file gagal dimuat. */
+function renderPhotoAccent(kind, className = '') {
+  const foto = PHOTO_SOURCES[kind];
+  if (!foto) return null;
+
+  let gagal = false;
+  const gambar = el('img', {
+    class: 'photo-accent__img',
+    src: foto.src,
+    alt: foto.alt,
+    loading: kind === 'welcome' ? 'eager' : 'lazy',
+    decoding: 'async',
+    onerror: (event) => {
+      if (gagal) return;
+      gagal = true;
+      const img = event.currentTarget;
+      const fallback = el('div', {
+        class: 'photo-accent__fallback',
+        role: 'img',
+        'aria-label': foto.alt,
+        text: '🌷',
+      });
+      img.replaceWith(fallback);
+    },
+  });
+
+  return el('figure', { class: `photo-accent ${className}`.trim(), 'data-source': foto.source }, [
+    gambar,
+  ]);
+}
+
 function renderHeader(activeTab, onNavigate) {
   const brand = el('div', { class: 'brand' }, [
     el('span', { class: 'brand__mark', 'aria-hidden': 'true', text: '◐' }),
@@ -118,7 +178,11 @@ function renderHeader(activeTab, onNavigate) {
     ),
   );
 
-  return el('header', { class: 'header' }, [el('div', { class: 'header__inner' }, [brand, nav])]);
+  const actions = el('div', { class: 'header__actions' }, [nav, renderThemeToggle()]);
+
+  return el('header', { class: 'header' }, [
+    el('div', { class: 'header__inner' }, [brand, actions]),
+  ]);
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -402,6 +466,84 @@ function renderLeafIcon() {
   );
 }
 
+/** Ikon bulan (terang) / matahari (gelap) + sparkle kecil, semuanya lokal. */
+function renderThemeIcon() {
+  return svg(
+    'svg',
+    { class: 'theme-toggle__icon', viewBox: '0 0 24 24', 'aria-hidden': 'true', focusable: 'false' },
+    [
+      svg('path', {
+        class: 'theme-toggle__moon',
+        d: 'M20.5 14.8A8.5 8.5 0 0 1 9.2 3.5a8.5 8.5 0 1 0 11.3 11.3z',
+        fill: 'currentColor',
+        opacity: '0.9',
+      }),
+      svg('circle', { class: 'theme-toggle__sun', cx: '12', cy: '12', r: '4.4', fill: 'currentColor' }),
+      svg('path', {
+        class: 'theme-toggle__sun',
+        d: 'M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l1.4-1.4',
+        fill: 'none',
+        stroke: 'currentColor',
+        'stroke-width': '1.6',
+        'stroke-linecap': 'round',
+      }),
+      svg('path', {
+        d: 'M18.6 3.5l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9z',
+        fill: '#D99AAF',
+        opacity: '0.85',
+      }),
+    ],
+  );
+}
+
+function activeTheme() {
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+}
+
+/** Toggle tema: teks + ikon, status tersimpan di localStorage. */
+function toggleTheme() {
+  const berikut = activeTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = berikut;
+  writeTheme(berikut);
+
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', berikut === 'dark' ? '#1f1724' : '#fff9f5');
+
+  document.querySelectorAll('.theme-toggle').forEach((button) => {
+    const gelap = berikut === 'dark';
+    button.setAttribute('aria-pressed', String(gelap));
+    button.setAttribute('aria-label', gelap ? 'Aktifkan mode terang' : 'Aktifkan mode gelap');
+    button.setAttribute('title', gelap ? 'Mode terang' : 'Mode gelap');
+    const label = button.querySelector('.theme-toggle__label');
+    if (label) label.textContent = gelap ? 'Terang' : 'Gelap';
+  });
+}
+
+function renderThemeToggle() {
+  const gelap = activeTheme() === 'dark';
+  return el(
+    'button',
+    {
+      type: 'button',
+      class: 'theme-toggle',
+      'aria-pressed': String(gelap),
+      'aria-label': gelap ? 'Aktifkan mode terang' : 'Aktifkan mode gelap',
+      title: gelap ? 'Mode terang' : 'Mode gelap',
+      onclick: toggleTheme,
+    },
+    [renderThemeIcon(), el('span', { class: 'theme-toggle__label', text: gelap ? 'Terang' : 'Gelap' })],
+  );
+}
+
+/** Rangkaian charm mini di hero: bunga, hati, bintang. */
+function renderHeroCharms() {
+  return el('span', { class: 'hero__charms', 'aria-hidden': 'true' }, [
+    renderFlowerIcon(),
+    renderHeartIcon(),
+    renderStarIcon(),
+  ]);
+}
+
 /** Animasi "pop" singkat saat ikon disentuh/diklik. */
 function playPop(node) {
   node.classList.remove('is-popping');
@@ -451,7 +593,10 @@ function stopBreathingTimer() {
 function renderHero() {
   return el('section', { class: 'hero', 'aria-labelledby': 'hero-title' }, [
     el('div', { class: 'hero__copy' }, [
-      el('p', { class: 'eyebrow', text: 'Selamat datang' }),
+      el('div', { class: 'hero__eyebrow' }, [
+        el('p', { class: 'eyebrow', text: 'Selamat datang' }),
+        renderHeroCharms(),
+      ]),
       el('h1', { id: 'hero-title', class: 'hero__title', text: APP_TAGLINE }),
       el('p', {
         class: 'hero__subtitle',
@@ -465,15 +610,17 @@ function renderHero() {
       }),
     ]),
     el('div', { class: 'hero__glow', 'aria-hidden': 'true' }, [renderHeroIllustration()]),
+    renderPhotoAccent('welcome', 'hero__photo'),
   ]);
 }
 
-function card({ title, note, badge, moduleName, id, className = '', children }) {
+function card({ title, note, badge, moduleName, id, className = '', headExtra, children }) {
   const head = el('div', { class: 'card__head' }, [
     el('span', { class: 'card__flower', 'aria-hidden': 'true' }, [renderFlowerIcon()]),
     el('h3', { class: 'card__title', text: title }),
   ]);
   if (badge) head.append(el('span', { class: 'badge', text: badge }));
+  if (headExtra) head.append(headExtra);
 
   const isi = children ?? [el('div', { class: 'card__slot', 'aria-hidden': 'true' })];
 
@@ -488,13 +635,14 @@ function card({ title, note, badge, moduleName, id, className = '', children }) 
   );
 }
 
-function pageIntro(title, subtitle, icon) {
-  return el('div', { class: 'page-intro' }, [
+function pageIntro(title, subtitle, icon, photo) {
+  return el('div', { class: `page-intro${photo ? ' page-intro--with-photo' : ''}` }, [
     el('div', { class: 'page-intro__row' }, [
       el('span', { class: 'page-intro__icon', 'aria-hidden': 'true' }, [icon ?? renderFlowerIcon()]),
       el('h2', { class: 'page-intro__title', text: title }),
     ]),
     el('p', { class: 'page-intro__sub', text: subtitle }),
+    photo ?? null,
   ]);
 }
 
@@ -516,6 +664,17 @@ function field(labelText, control, hint) {
     el('span', { class: 'field__label', text: labelText }),
     control,
     hint ? el('span', { class: 'field__hint', text: hint }) : null,
+  ]);
+}
+
+/** Stiker kecil + foto dirapatkan di kepala kartu, bukan ditumpuk di atas form. */
+function renderCheckInHeadDecor() {
+  return el('div', { class: 'checkin__head-extra' }, [
+    el('span', { class: 'checkin__decor', 'aria-hidden': 'true' }, [
+      renderSparkleIcon(),
+      renderHeartIcon(),
+    ]),
+    renderPhotoAccent('checkin', 'checkin__photo'),
   ]);
 }
 
@@ -551,6 +710,16 @@ function renderCheckInCard() {
     }),
   );
 
+  /** Isi track slider memakai custom property; pseudo-element membacanya dari input. */
+  function updateRangeFill(input, output) {
+    const min = Number(input.min);
+    const max = Number(input.max);
+    const value = Number(input.value);
+    const persen = max > min ? ((value - min) / (max - min)) * 100 : 0;
+    input.style.setProperty('--range-progress', `${persen}%`);
+    output.textContent = String(value);
+  }
+
   function slider(label, key, initial) {
     const valueText = el('output', { class: 'range__value', text: String(initial) });
     const input = el('input', {
@@ -563,12 +732,19 @@ function renderCheckInCard() {
       'aria-label': label,
       oninput: (event) => {
         state[key] = Number(event.target.value);
-        valueText.textContent = event.target.value;
+        updateRangeFill(event.target, valueText);
       },
     });
+
+    updateRangeFill(input, valueText);
+
     return el('div', { class: 'field field--range' }, [
       el('div', { class: 'field__label' }, [el('span', { text: label }), valueText]),
       input,
+      el('div', { class: 'range__scale', 'aria-hidden': 'true' }, [
+        el('span', { text: '1' }),
+        el('span', { text: '5' }),
+      ]),
     ]);
   }
 
@@ -621,6 +797,8 @@ function renderCheckInCard() {
     moduleName: 'check-in',
     title: 'How are you, really?',
     note: 'Empat pertanyaan singkat dan satu catatan opsional.',
+    className: 'card--checkin',
+    headExtra: renderCheckInHeadDecor(),
     children: [
       el('div', { class: 'form' }, [
         field('Suasana hati hari ini', moodGroup, 'Pilih satu yang paling mendekati.'),
@@ -1069,11 +1247,15 @@ function renderBreathingCard() {
 
   return card({
     moduleName: 'breathing',
-    className: 'card--breathing',
+    className: 'card--breathing card--wellness',
     title: 'Latihan napas',
     note: 'Tarik 4 detik · Tahan 4 detik · Hembus 6 detik, tiga siklus.',
     children: [
       el('div', { class: 'breathing' }, [
+        el('div', { class: 'breathing__decor', 'aria-hidden': 'true' }, [
+          renderStarIcon(),
+          renderSparkleIcon(),
+        ]),
         el('div', { class: 'breathing__visual' }, [bunga, circle]),
         phase,
         cycle,
@@ -1098,9 +1280,13 @@ function renderAffirmationCard() {
     moduleName: 'affirmation',
     title: 'Afirmasi Harian',
     note: 'Satu kalimat kecil untuk dibawa sepanjang hari.',
-    className: 'card--affirmation',
+    className: 'card--affirmation card--wellness',
     children: [
       el('div', { class: 'affirmation' }, [
+        el('div', { class: 'affirmation__decor', 'aria-hidden': 'true' }, [
+          renderSparkleIcon(),
+          renderHeartIcon(),
+        ]),
         quote,
         el('div', { class: 'affirmation__actions' }, [
           cuteIconButton({ icon: renderStarIcon(), label: 'Afirmasi lain', onClick: lain }),
@@ -1455,32 +1641,73 @@ function renderLetterListCard() {
 function renderJourneyCard() {
   const host = el('div', { class: 'journey' });
 
+  function refreshCalendar() {
+    document.querySelectorAll('.mood-calendar').forEach((node) => {
+      node.dispatchEvent(new Event('dearme:refresh'));
+    });
+  }
+
   function draw() {
     host.replaceChildren();
-    const ringkasan = buildJourneySummary(readAll(), toISODate());
+    const data = readAll();
+    const ringkasan = buildJourneySummary(data, toISODate());
     const cuaca = ringkasan.cuacaTerakhir ? WEATHER_META[ringkasan.cuacaTerakhir] : null;
 
     const stats = [
-      { value: String(ringkasan.totalCheckIns), label: 'Check-In' },
+      { value: String(ringkasan.totalCheckIns), label: 'Check-In', icon: '🌷', tone: 'pink' },
       {
         value: cuaca ? `${cuaca.icon} ${cuaca.label}` : '—',
         label: 'Cuaca terakhir',
+        icon: cuaca?.icon ?? '☁️',
+        tone: 'lavender',
       },
-      { value: String(ringkasan.totalJurnal), label: 'Jurnal' },
-      { value: String(ringkasan.totalLittleWins), label: 'Little Wins' },
+      { value: String(ringkasan.totalJurnal), label: 'Jurnal', icon: '📖', tone: 'peach' },
+      { value: String(ringkasan.totalLittleWins), label: 'Little Wins', icon: '🌱', tone: 'sage' },
     ];
+
+    const distribusi = countWeatherDistribution(data.checkins);
+    const maks = Math.max(1, ...Object.values(distribusi));
+    const persenMenang = Math.round(littleWinRatio(data.journals) * 100);
+
+    const chart = el('div', { class: 'weather-chart', role: 'group', 'aria-label': 'Distribusi cuaca emosi' }, [
+      el('p', { class: 'chart-title', text: 'Cuaca emosi kamu' }),
+      ...Object.entries(distribusi).map(([kunci, jumlah]) => {
+        const meta = WEATHER_META[kunci];
+        const lebar = Math.round((jumlah / maks) * 100);
+        return el('div', { class: 'weather-chart__row' }, [
+          el('span', { class: 'weather-chart__icon', 'aria-hidden': 'true', text: meta.icon }),
+          el('span', { class: 'weather-chart__label', text: meta.label }),
+          el('div', { class: 'weather-chart__track' }, [
+            el('span', { class: `weather-chart__fill weather-chart__fill--${kunci}`, style: `width:${lebar}%` }),
+          ]),
+          el('span', { class: 'weather-chart__count', text: String(jumlah) }),
+        ]);
+      }),
+    ]);
+
+    const progres = el('div', { class: 'journey-progress' }, [
+      el('div', { class: 'journey-progress__head' }, [
+        el('span', { text: 'Jurnal dengan little win' }),
+        el('span', { class: 'journey-progress__value', text: `${persenMenang}%` }),
+      ]),
+      el('div', { class: 'journey-progress__track' }, [
+        el('span', { class: 'journey-progress__fill', style: `width:${persenMenang}%` }),
+      ]),
+    ]);
 
     host.append(
       el(
         'div',
         { class: 'stat-grid' },
         stats.map((stat) =>
-          el('div', { class: 'stat' }, [
+          el('div', { class: `stat stat--${stat.tone}` }, [
+            el('span', { class: 'stat__icon', 'aria-hidden': 'true', text: stat.icon }),
             el('p', { class: 'stat__value', text: stat.value }),
             el('p', { class: 'stat__label', text: stat.label }),
           ]),
         ),
       ),
+      el('div', { class: 'journey__visuals' }, [chart, progres]),
       el('p', {
         class: 'journey__bonus',
         text: `Reframing tersimpan: ${ringkasan.totalReframe} · Surat terbuka: ${ringkasan.totalSuratTerbuka}`,
@@ -1506,6 +1733,7 @@ function renderJourneyCard() {
             if (!window.confirm('Muat ulang data contoh? Data saat ini akan ditimpa.')) return;
             loadSeed();
             draw();
+            refreshCalendar();
             showToast('Data contoh dimuat 🌷');
           },
         }),
@@ -1517,6 +1745,7 @@ function renderJourneyCard() {
             if (!window.confirm('Hapus semua data? Tindakan ini tidak bisa dibatalkan.')) return;
             clearAll();
             draw();
+            refreshCalendar();
             showToast('Semua data dihapus 🌿');
           },
         }),
@@ -1534,6 +1763,96 @@ function renderJourneyCard() {
   });
 }
 
+/** Kalender mood read-only: hanya membaca check-in, tidak menulis data baru. */
+function renderMoodCalendarCard() {
+  const host = el('div', { class: 'mood-calendar' });
+  let bulan = new Date();
+
+  function draw() {
+    const data = buildMoodCalendar(readAll().checkins, bulan, toISODate());
+    const labels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+    const grid = el('div', { class: 'mood-calendar__grid', role: 'grid' }, [
+      ...labels.map((label) =>
+        el('span', { class: 'mood-calendar__weekday', role: 'columnheader', text: label }),
+      ),
+      ...data.cells.map((cell) => {
+        if (cell.kosong) {
+          return el('span', { class: 'mood-calendar__day mood-calendar__day--blank', 'aria-hidden': 'true' });
+        }
+        const mood = MOODS.find((item) => item.value === cell.mood);
+        const cuaca = cell.cuaca ? WEATHER_META[cell.cuaca] : null;
+        const tanggalPendek = formatDate(`${cell.tanggal}T12:00:00`, {
+          day: 'numeric',
+          month: 'short',
+        });
+        const keterangan = cell.adaCheckIn
+          ? `${tanggalPendek} · ${cell.mood || 'Mood tercatat'}${cuaca ? ` · ${cuaca.label}` : ''}`
+          : `${tanggalPendek} · Belum ada check-in`;
+
+        return el(
+          'div',
+          {
+            class: `mood-calendar__day${cell.adaCheckIn ? ' has-entry' : ''}${cell.hariIni ? ' is-today' : ''}`,
+            role: 'gridcell',
+            title: keterangan,
+            'aria-label': keterangan,
+          },
+          [
+            el('span', { class: 'mood-calendar__number', text: String(cell.hari) }),
+            el('span', {
+              class: 'mood-calendar__emoji',
+              'aria-hidden': 'true',
+              text: mood?.emoji ?? (cell.adaCheckIn ? '🌷' : '·'),
+            }),
+          ],
+        );
+      }),
+    ]);
+
+    host.replaceChildren(
+      el('div', { class: 'mood-calendar__head' }, [
+        el('button', {
+          type: 'button',
+          class: 'btn-text mood-calendar__nav',
+          text: '‹ Sebelumnya',
+          'aria-label': 'Bulan sebelumnya',
+          onclick: () => {
+            bulan = new Date(data.tahun, data.bulan - 1, 1);
+            draw();
+          },
+        }),
+        el('p', { class: 'mood-calendar__label', text: data.label }),
+        el('button', {
+          type: 'button',
+          class: 'btn-text mood-calendar__nav',
+          text: 'Berikutnya ›',
+          'aria-label': 'Bulan berikutnya',
+          onclick: () => {
+            bulan = new Date(data.tahun, data.bulan + 1, 1);
+            draw();
+          },
+        }),
+      ]),
+      grid,
+      el('p', {
+        class: 'mood-calendar__legend',
+        text: 'Emoji mengikuti mood dari check-in. Tanggal kosong berarti belum ada catatan.',
+      }),
+    );
+  }
+
+  host.addEventListener('dearme:refresh', draw);
+  draw();
+
+  return card({
+    moduleName: 'mood-calendar',
+    title: 'Kalender Mood',
+    note: 'Jejak kecil harimu, dibaca dari check-in yang sudah tersimpan di perangkat.',
+    children: [host],
+  });
+}
+
 /** Konten tiap tab. Modul fitur akan dipasang di sini pada iterasi berikutnya. */
 export function renderContent(main, activeTab) {
   let content;
@@ -1546,7 +1865,7 @@ export function renderContent(main, activeTab) {
           renderCheckInCard(),
           renderReportCard(),
         ]),
-        el('div', { class: 'grid grid--two' }, [
+        el('div', { class: 'grid grid--two wellness-grid' }, [
           renderBreathingCard(),
           renderAffirmationCard(),
         ]),
@@ -1579,18 +1898,31 @@ export function renderContent(main, activeTab) {
       break;
 
     case 'safe-space':
-      content = el('div', { class: 'stack stack--two' }, [
-        pageIntro('Safe Space', 'Berhenti sejenak. Tarik napas. Kamu tidak harus melakukan apa pun.', renderFlowerIcon()),
-        renderBreathingCard(),
-        renderAffirmationCard(),
+      content = el('div', { class: 'stack' }, [
+        pageIntro(
+          'Safe Space',
+          'Berhenti sejenak. Tarik napas. Kamu tidak harus melakukan apa pun.',
+          renderFlowerIcon(),
+          renderPhotoAccent('safe-space', 'page-intro__photo'),
+        ),
+        el('div', { class: 'grid grid--two wellness-grid' }, [
+          renderBreathingCard(),
+          renderAffirmationCard(),
+        ]),
       ]);
       break;
 
     case 'journey':
     default:
       content = el('div', { class: 'stack' }, [
-        pageIntro('My Growth Journey', 'Lihat jejak kecil yang sudah kamu jalani.', renderLeafIcon()),
+        pageIntro(
+          'My Growth Journey',
+          'Lihat jejak kecil yang sudah kamu jalani.',
+          renderLeafIcon(),
+          renderPhotoAccent('journey', 'page-intro__photo'),
+        ),
         renderJourneyCard(),
+        renderMoodCalendarCard(),
         el('p', { class: 'inline-disclaimer', text: DISCLAIMER_SHORT }),
       ]);
       break;
@@ -1600,16 +1932,61 @@ export function renderContent(main, activeTab) {
   main.replaceChildren(content);
 }
 
-function renderFooter() {
-  return el(
-    'footer',
-    { class: 'footer' },
-    el('p', { class: 'footer__text' }, [
-      el('strong', { text: 'Catatan kecil: ' }),
-      document.createTextNode(DISCLAIMER_SHORT),
-      document.createTextNode(' Jika perlu bantuan, hubungi tenaga kesehatan mental di wilayahmu.'),
-    ]),
+/** Ikon chat buatan lokal (bukan aset/CDN eksternal). */
+function renderWhatsAppIcon() {
+  return svg(
+    'svg',
+    {
+      class: 'wa-contact__icon-svg',
+      viewBox: '0 0 24 24',
+      'aria-hidden': 'true',
+      focusable: 'false',
+    },
+    [
+      svg('path', {
+        d: 'M20.6 11.5c0 4.1-3.7 7.4-8.2 7.4-1.4 0-2.8-.4-3.9-1L4 19.4l1.5-4.3a7 7 0 0 1-2-4.6c0-4.1 3.7-7.4 8.2-7.4s9.9 3.3 9.9 8.4z',
+        fill: 'currentColor',
+      }),
+      svg('path', {
+        class: 'wa-contact__heart',
+        d: 'M12 15.4s-3.2-2-4.2-3.4c-.9-1.2.2-2.7 1.5-2.4.7.2 1.2.8 1.5 1.4.3-.6.8-1.2 1.5-1.4 1.3-.3 2.4 1.2 1.5 2.4-1 1.4-4.2 3.4-4.2 3.4z',
+      }),
+    ],
   );
+}
+
+/** Kartu kontak permanen: pesan awal netral, tanpa data pribadi. */
+function renderWhatsAppContact() {
+  return el('section', { class: 'wa-contact', 'aria-labelledby': 'wa-contact-title' }, [
+    el('span', { class: 'wa-contact__icon', 'aria-hidden': 'true' }, [renderWhatsAppIcon()]),
+    el('div', { class: 'wa-contact__copy' }, [
+      el('p', { id: 'wa-contact-title', class: 'wa-contact__title', text: 'Butuh ruang bicara?' }),
+      el('p', {
+        class: 'wa-contact__note',
+        text: 'Pesan awal hanya salam. Isi jurnal dan data pribadi tidak ikut terkirim.',
+      }),
+    ]),
+    el('a', {
+      class: 'btn wa-contact__link',
+      href: buildWhatsAppUrl(),
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      text: 'Chat WhatsApp',
+    }),
+  ]);
+}
+
+function renderFooter() {
+  return el('footer', { class: 'footer' }, [
+    el('div', { class: 'footer__inner' }, [
+      renderWhatsAppContact(),
+      el('p', { class: 'footer__text' }, [
+        el('strong', { text: 'Catatan kecil: ' }),
+        document.createTextNode(DISCLAIMER_SHORT),
+        document.createTextNode(' Jika perlu bantuan, hubungi tenaga kesehatan mental di wilayahmu.'),
+      ]),
+    ]),
+  ]);
 }
 
 /** Bangun shell sekali; konten tab diganti lewat renderContent(). */

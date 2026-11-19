@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
   reframes: 'dearme:reframes',
   letters: 'dearme:letters',
   seeded: 'dearme:seeded',
+  theme: 'dearme:theme',
 };
 
 /** Navigasi utama — 6 tab, urutan mengikuti UI-SPEC.md C-01. */
@@ -69,6 +70,9 @@ export const WEATHER_META = {
   },
 };
 
+/** Urutan tetap untuk legend/statistik cuaca di Journey. */
+export const WEATHER_ORDER = ['cerah', 'berawan', 'hujan', 'badai'];
+
 /** Rule-based, tanpa AI/API. Prioritas badai → hujan → cerah → berawan. */
 export const WEATHER_RULES = [
   { type: 'badai', test: ({ mood, energi }) => ['Marah', 'Cemas'].includes(mood) && energi <= 2 },
@@ -94,6 +98,19 @@ export const REMINDERS = [
 /** F-01: batas karakter catatan singkat & caption laporan. */
 export const NOTE_MAX_LENGTH = 140;
 export const CHECKIN_DISCLAIMER = 'Ringkasan ini adalah refleksi, bukan diagnosis medis.';
+
+/**
+ * Kontak WhatsApp — hanya dibuka saat pengguna mengetuk tautan.
+ * Pesan default sengaja netral: tidak memuat jurnal, mood, atau data localStorage.
+ */
+export const WHATSAPP_NUMBER = '6283835513161';
+export const WHATSAPP_DEFAULT_MESSAGE = 'Halo Dear Me, saya ingin bertanya. Boleh kita ngobrol sebentar? 🌷';
+
+/** Susun URL wa.me dengan encodeURIComponent agar teks aman di query string. */
+export function buildWhatsAppUrl(message = WHATSAPP_DEFAULT_MESSAGE) {
+  const teks = typeof message === 'string' ? message : WHATSAPP_DEFAULT_MESSAGE;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(teks)}`;
+}
 
 /** Pilih reminder secara deterministik per hari (tetap lokal, tanpa API). */
 export function pickReminder(tanggal = toISODate()) {

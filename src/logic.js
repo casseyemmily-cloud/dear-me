@@ -8,6 +8,8 @@
  * - bisa dipanggil langsung dari Console untuk pengujian manual
  */
 
+import { WEATHER_ORDER, toISODate } from './constants.js';
+
 /** Urutkan entri terbaru lebih dulu tanpa mengubah array asli. */
 export function sortByNewest(entries, key = 'tanggal') {
   return [...entries].sort((a, b) =>
@@ -114,4 +116,63 @@ export function buildJourneySummary(data, todayISO) {
     totalSuratTerbuka: letters.filter((letter) => isLetterOpen(letter, todayISO)).length,
     dataContoh: totalEntri > 0 && !hasUserData(data),
   };
+}
+
+/** Distribusi cuaca emosi untuk visualisasi batangan di Journey. */
+export function countWeatherDistribution(checkins) {
+  const hasil = Object.fromEntries(WEATHER_ORDER.map((kunci) => [kunci, 0]));
+  for (const entry of Array.isArray(checkins) ? checkins : []) {
+    const kunci = String(entry?.cuacaEmosi ?? '');
+    if (Object.prototype.hasOwnProperty.call(hasil, kunci)) hasil[kunci] += 1;
+  }
+  return hasil;
+}
+
+/** Rasio jurnal yang memiliki little win (0..1, nol saat belum ada jurnal). */
+export function littleWinRatio(journals) {
+  const daftar = Array.isArray(journals) ? journals : [];
+  if (!daftar.length) return 0;
+  return countLittleWins(daftar) / daftar.length;
+}
+
+/**
+ * Kalender mood read-only untuk satu bulan.
+ * Data diambil dari check-in yang sudah ada; tidak menulis localStorage.
+ */
+export function buildMoodCalendar(checkins, monthDate = new Date(), todayISO = toISODate()) {
+  const base =
+    monthDate instanceof Date && !Number.isNaN(monthDate.getTime())
+      ? new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
+      : new Date();
+  const tahun = base.getFullYear();
+  const bulan = base.getMonth();
+  const jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
+  const blankAwal = new Date(tahun, bulan, 1).getDay();
+
+  const peta = new Map();
+  for (const entry of Array.isArray(checkins) ? checkins : []) {
+    if (entry?.tanggal) peta.set(String(entry.tanggal), entry);
+  }
+
+  const cells = [];
+  for (let i = 0; i < blankAwal; i += 1) {
+    cells.push({ key: `blank-${i}`, kosong: true });
+  }
+  for (let hari = 1; hari <= jumlahHari; hari += 1) {
+    const tanggal = toISODate(new Date(tahun, bulan, hari));
+    const entry = peta.get(tanggal) ?? null;
+    cells.push({
+      key: tanggal,
+      tanggal,
+      hari,
+      kosong: false,
+      adaCheckIn: Boolean(entry),
+      mood: entry?.suasanaHati ?? '',
+      cuaca: entry?.cuacaEmosi ?? '',
+      hariIni: tanggal === String(todayISO),
+    });
+  }
+
+  const label = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(base);
+  return { tahun, bulan, label, cells };
 }

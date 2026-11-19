@@ -59,6 +59,25 @@ export function readAll() {
   };
 }
 
+/** Baca preferensi tema; hanya nilai 'dark' yang dianggap mode gelap. */
+export function readTheme() {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.theme) === 'dark' ? 'dark' : 'light';
+  } catch {
+    return 'light';
+  }
+}
+
+/** Simpan preferensi tema. Gagal simpan tetap mengembalikan hasil, bukan throw. */
+export function writeTheme(theme) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.theme, theme === 'dark' ? 'dark' : 'light');
+    return { ok: true };
+  } catch {
+    return { ok: false, message: 'Gagal menyimpan preferensi tema.' };
+  }
+}
+
 /** True bila pengguna sudah pernah punya data (bukan sekadar seed). */
 export function isSeeded() {
   try {
