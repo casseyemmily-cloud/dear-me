@@ -1,0 +1,15 @@
+{
+  "name": "dear-me",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A Little Space to Heal, Grow, and Bloom — mental wellness & self-growth journal (local-only).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}
